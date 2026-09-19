@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <RootNamespace>EasyAuth_CS_Example</RootNamespace>
+    <AssemblyName>EasyAuth-CS-Example</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>x64</Platforms>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="qPapelEasyAuth.NET">
+      <HintPath>wrapper\qPapelEasyAuth.NET.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fody" Version="6.8.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Costura.Fody" Version="5.7.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+  <Target Name="HideWrapperDll" AfterTargets="AfterBuild">
+    <Delete Files="$(TargetDir)qPapelEasyAuth.NET.dll" TreatErrorsAsWarnings="true" />
+    <Delete Files="$(TargetDir)qPapelEasyAuth.NET.pdb" TreatErrorsAsWarnings="true" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent;HideWrapperDll">
+    <Error Condition="!Exists('$(ProjectDir)qPapelTools\qPapelEasyAuth.dll')" Text="qPapelEasyAuth.dll is missing. download it and try again" />
+    <Warning Condition="!Exists('$(ProjectDir)qPapelTools\qPapelPacker.exe')" Text="qPapelPacker.exe not found in qPapelTools. Skipping pack." />
+    <Exec Condition="Exists('$(ProjectDir)qPapelTools\qPapelPacker.exe') And Exists('$(ProjectDir)qPapelTools\qPapelEasyAuth.dll')"
+          Command="echo [*] Packing with qPapelPacker...&#xD;&#xA;&quot;$(ProjectDir)qPapelTools\qPapelPacker.exe&quot; --dll &quot;$(ProjectDir)qPapelTools\qPapelEasyAuth.dll&quot; --input &quot;$(TargetDir)$(TargetName).exe&quot; --output &quot;$(TargetDir)$(TargetName)_packed.exe&quot;" />
+  </Target>
+
+</Project>
